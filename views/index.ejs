@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="/javascripts/encode.js"></script>
+    <script src="/javascripts/domParse.js"></script>
+    <script>
+      var parse = function(str){
+        var results='';
+        try{
+          HTMLParser(he.unescape(str,{strict:true}),{
+            start:function(tag,attrs,unary){ // unary为true单标签，false为配对标签
+              if(tag=='script'||tag=='style'||tag=='link'||tag=='iframe'||tag=='frame') return;
+              results += '<' + tag;
+              for(var i=0, len=attrs.length;i<len;i++){
+                results += " " + attrs[i].name + '="'+ attrs[i].escaped + '"';
+              }
+              results += (unary?"/":"") + ">"
+            },
+            end:function(tag){
+              results += "</" + tag + ">";
+            },
+            chars:function(text){
+              results += text;
+            },
+            comment:function(text){
+              results += "<!--" + text + "-->";
+            }
+           });
+           return results;
+        } catch(e) {
+          console.log(e);
+        } finally {
+
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+    <textarea name="name" id="txt" cols="80" rows="8">
+      <p>sks <img src="null" alt="" onerror="alert(1)"></p>
+    </textarea>
+
+    <button type="button" name="button" id="btn">评论</button>
+    <button type="button" name="button" id="get">获取评论</button>
+
+    <script>
+      var btn = document.getElementById('btn');
+      var get = document.getElementById('get');
+      var txt = document.getElementById('txt');
+
+      //IE暂时不考虑
+      btn.addEventListener('click', function(){
+        // 构造简易ajax功能
+        var xhr = new XMLHttpRequest();
+        var url = '/comment?comment='+txt.value;
+        xhr.open('GET',url,true);
+        xhr.onreadystatechange = function(){
+          if(xhr.readyState==4){ // 通信连接成功
+            if(xhr.status==200){
+              console.log(xhr);
+            } else {
+              console.log('error');
+            }
+          }
+        }
+        xhr.send();
+      });
+
+      get.addEventListener('click', function(){
+        var xhr = new XMLHttpRequest();
+        var url = '/getComment';
+        xhr.open('GET',url,true);
+        xhr.onreadystatechange = function(){
+          if(xhr.readyState==4){
+            if(xhr.status==200){
+              var com = parse(JSON.parse(xhr.response).comment); // xhr.response是文本，需要转换为json对象
+              var txt = document.createElement('span');
+              txt.innerHTML=com;
+              document.body.appendChild(txt);
+            } else {
+              console.log('error');
+            }
+          }
+        }
+        xhr.send();
+      });
+    </script>
+  </body>
+</html>
