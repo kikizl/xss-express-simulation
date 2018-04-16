@@ -13,9 +13,9 @@
             start:function(tag,attrs,unary){ // unary为true单标签，false为配对标签
               if(tag=='script'||tag=='style'||tag=='link'||tag=='iframe'||tag=='frame') return;
               results += '<' + tag;
-              for(var i=0, len=attrs.length;i<len;i++){
-                results += " " + attrs[i].name + '="'+ attrs[i].escaped + '"';
-              }
+              // for(var i=0, len=attrs.length;i<len;i++){
+              //   results += " " + attrs[i].name + '="'+ attrs[i].escaped + '"';
+              // }
               results += (unary?"/":"") + ">"
             },
             end:function(tag){
